@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Vulkan: a barrier over a 3D texture covers it whatever layer range it names.** A 3D image has one layer, and
+  Vulkan reads an explicit layer count of a 3D image created 2D-array compatible as a count of depth slices once
+  `maintenance9` is enabled; the validation layer warned about a `CommandEncoder.TransitionTextures` barrier that
+  named one layer of a 3D texture.
+
 ## [0.34.13] - 2026-11-11
 
 A Metal shader patch: naga v0.21.10.
