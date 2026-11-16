@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Vulkan reads an explicit layer count of a 3D image created 2D-array compatible as a count of depth slices once
   `maintenance9` is enabled; the validation layer warned about a `CommandEncoder.TransitionTextures` barrier that
   named one layer of a 3D texture.
+- **A render pass may sample one mip level or array layer of a texture while drawing into another.** Such a pass,
+  as mipmap generation draws a level at a time, was refused with a usage conflict when it set the bind group. Render
+  pass attachments, bind group views and explicit barriers now pass the subresources they cover to the tracker, so
+  a usage scope conflicts only where two usages meet on one subresource and each barrier moves a subresource from
+  its own state. A bound view of a texture that is also an attachment of the pass now gets its barrier; it used to
+  be dropped. New readback tests draw one level, or layer, from another and the next from it in one command buffer
+  on every backend, with the Vulkan validation layer and the DX12 debug layer silent.
 
 ### Added
 
@@ -26,6 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `TexturePendingTransition` has a `Selector`, which `IntoHAL` turns into the barrier's range. `GetUsage`,
   `StartUsage` and `EndUsage` return `TextureUsesNone` while a texture's subresources differ. Every caller in this
   module still passes the whole texture, so what is tracked and every barrier recorded are unchanged.
+- **`core` names the subresources a usage covers**: `Texture.ArrayLayerCount` and `Texture.Subresources`,
+  `BindGroupTextureUse.Subresources`, and `CoreCommandEncoder.RecordTextureSubresourceTransition`, which takes the
+  explicit barrier's `hal.TextureRange`; `RecordTextureTransition` stays as its whole-texture form.
 
 ### Deprecated
 

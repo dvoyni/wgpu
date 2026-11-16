@@ -609,8 +609,8 @@ func (e *CommandEncoder) TransitionTextures(barriers []TextureBarrier) {
 	}
 	if len(halBarriers) > 0 {
 		raw.TransitionTextures(halBarriers)
-		for _, b := range validBarriers {
-			e.core.RecordTextureTransition(b.Texture.coreTexture, b.Usage.OldUsage, b.Usage.NewUsage)
+		for i, b := range validBarriers {
+			e.core.RecordTextureSubresourceTransition(b.Texture.coreTexture, halBarriers[i].Range, b.Usage.OldUsage, b.Usage.NewUsage)
 		}
 	}
 }
