@@ -53,7 +53,7 @@ func finishWithTextureUse(t *testing.T, device *Device, label string, tex *Textu
 	if err != nil {
 		t.Fatalf("Finish: %v", err)
 	}
-	cmd.core.TextureScope().SetSingle(tex.coreTexture.TrackingData().Index(), use)
+	cmd.core.TextureScope().AppendSingle(nil, tex.coreTexture.TrackingData().Index(), track.TextureSelector{}, use)
 	cmd.usedTextures = map[*Texture]struct{}{tex: {}}
 	return cmd
 }

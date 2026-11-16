@@ -477,7 +477,7 @@ func createCopyScopeBuffer(t *testing.T, device *Device, label string) *Buffer {
 // seedTextureUsage simulates an earlier command of the encoder that left the
 // texture in usage.
 func seedTextureUsage(enc *CommandEncoder, texture *Texture, usage track.TextureUses) {
-	enc.core.Mutable().TextureScope().SetSingle(texture.coreTexture.TrackingData().Index(), usage)
+	enc.core.Mutable().TextureScope().AppendSingle(nil, texture.coreTexture.TrackingData().Index(), track.TextureSelector{}, usage)
 }
 
 // seedBufferUsage simulates an earlier command of the encoder that left the

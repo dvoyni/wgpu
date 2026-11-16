@@ -14,6 +14,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `maintenance9` is enabled; the validation layer warned about a `CommandEncoder.TransitionTextures` barrier that
   named one layer of a 3D texture.
 
+### Added
+
+- **`core/track` keeps a texture's usage per mip level and array layer**, as Rust wgpu-core's `TextureSelector`
+  states do: one usage while every subresource shares it, and one per mip level and layer once they differ, so a
+  usage scope conflicts only where two usages meet on one subresource and each barrier moves a subresource from its
+  own state. New forms take a `track.TextureSelector`, whose zero value selects the whole texture:
+  `TextureUsageScope.SetSubresourceUsage`, `EncoderTextureTracker.RecordSubresourceTransition`, and `AppendSingle`
+  on `EncoderTextureTracker` and `TextureTracker`, which appends the transitions to the caller's slice, so copies and
+  queue writes allocate nothing for them; `core.DeviceTracker.AppendSingleTexture` is its device form.
+  `TexturePendingTransition` has a `Selector`, which `IntoHAL` turns into the barrier's range. `GetUsage`,
+  `StartUsage` and `EndUsage` return `TextureUsesNone` while a texture's subresources differ. Every caller in this
+  module still passes the whole texture, so what is tracked and every barrier recorded are unchanged.
+
+### Deprecated
+
+- **`track.TextureTracker.SetSingle`, `track.EncoderTextureTracker.SetSingle` and
+  `core.DeviceTracker.SetSingleTexture`.** A texture whose subresources are in different states needs a barrier for
+  each, and these return only the first; use `AppendSingle` and `AppendSingleTexture`. `track.TextureState` is no
+  longer used by the trackers.
+
 ## [0.34.13] - 2026-11-11
 
 A Metal shader patch: naga v0.21.10.
