@@ -23,6 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **The software backend multisamples color.** `CreateTexture` takes a `SampleCount` of 4 for a color format, its
+  storage holding each texel's samples. A pipeline of `Multisample.Count` 4 tests coverage at the 4 standard sample
+  positions under the top-left rule, shades each fragment once at its pixel center, and blends its color into each
+  sample it covers, on every draw path, under `Multisample.Mask`. A clear fills every sample, and a resolve averages
+  each texel's samples, in linear for an sRGB view, where it used to copy the attachment. A depth or stencil texture
+  of more than one sample, a pipeline enabling alpha to coverage and a bind group of a multisampled texture are
+  refused. The adapter's `TextureFormatCapabilities` reports multisampling for every format with a color codec, and
+  resolving for those that are not integer. In `hal/software/raster`, `Pipeline.SetMultisampleState` takes a `MultisampleState`, `QuadRasterizer` a
+  `Multisample` field, `Fragment` has a `Coverage` of the samples it writes, and `ColorOutput` and `MRTOutput`
+  receive it.
 - **`core/track` keeps a texture's usage per mip level and array layer**, as Rust wgpu-core's `TextureSelector`
   states do: one usage while every subresource shares it, and one per mip level and layer once they differ, so a
   usage scope conflicts only where two usages meet on one subresource and each barrier moves a subresource from its
